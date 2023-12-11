@@ -28,6 +28,7 @@ message Post {
   State state = 8;
   google.protobuf.Timestamp publication_date = 9;
   string subreddit_id = 10;  // Reference to Subreddit
+  repeated Comment comments = 11; // Add this line
 }
 
 // Comment entity
@@ -107,7 +108,7 @@ message GetPostRequest {
 message CreateCommentRequest {
   string content = 1;
   string author = 2;
-  string parent_post = 3;
+  string post_id = 3;
   string parent_comment = 4; // Optional
 }
 
