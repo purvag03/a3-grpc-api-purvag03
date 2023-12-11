@@ -3,7 +3,7 @@ import os
 import grpc
 import uuid
 from google.protobuf.timestamp_pb2 import Timestamp
-import datetime
+from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'proto'))
 import reddit_pb2
@@ -14,22 +14,20 @@ class RedditClient:
         channel_address = f'{host}:{port}'
         self.channel = grpc.insecure_channel(channel_address)
         self.stub = reddit_pb2_grpc.RedditServiceStub(self.channel)
+        
 
     def create_post(self, title, text, media_url, author, subreddit):
-        now = datetime.datetime.utcnow()
-        publication_date = Timestamp()
-        publication_date.FromDatetime(now)
-
+        
         post_request = reddit_pb2.CreatePostRequest(
             title=title,
             text=text,
             media_url=media_url,
             author=author,
-            subreddit=subreddit,
-            publication_date=publication_date
+            subreddit=subreddit
         )
 
-        return self.stub.CreatePost(post_request)
+        post_response = self.stub.CreatePost(post_request)
+        return post_response
     
     def vote_post(self, post_id, upvote=True):
         vote_request = reddit_pb2.VotePostRequest(post_id=post_id, vote=upvote)
@@ -81,6 +79,39 @@ class RedditClient:
             print(f"Successfully {'upvoted' if upvote else 'downvoted'} Comment ID {comment_id}. New Score: {response.new_score}")
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
+            
+    def list_top_comments(self, post_id, number_of_comments):
+        request = reddit_pb2.TopCommentsRequest(post_id=post_id, number_of_comments=number_of_comments)
+        try:
+            response = self.stub.TopComments(request)
+            for comment in response.comments:
+                print(f"Comment ID: {comment.comment.comment_id}, Score: {comment.comment.score}, Has Replies: {'Yes' if comment.has_replies else 'No'}")
+            return response.comments
+        except grpc.RpcError as e:
+            print(f"RPC failed: {e.details()}")
+            return None
+    
+    def expand_comment_branch(self, comment_id, number_of_comments):
+        request = reddit_pb2.ExpandCommentBranchRequest(comment_id=comment_id, number_of_comments=number_of_comments)
+        try:
+            response = self.stub.ExpandCommentBranch(request)
+            for comment_tree in response.comments:
+                self._print_comment_tree(comment_tree.comment, "  ", comment_tree.replies)
+            return response
+        except grpc.RpcError as e:
+            print(f"RPC failed: {e.details()}")
+            return None
+
+    def _print_comment_tree(self, comment, indent, replies):
+        # Print the main comment
+        print(f"{indent}Comment ID: {comment.comment_id}, Score: {comment.score}")
+        # Print each reply
+        for reply in replies:
+            self._print_comment_tree(reply, indent + "  ", reply.replies)
+        
+    
+    
+    
 
 def main():
     client = RedditClient()
@@ -126,17 +157,36 @@ def main():
     if comment_response:
         comment_id = comment_response.comment.comment_id
         client.vote_comment(comment_id, upvote=True)
-        client.vote_comment(comment_id, upvote=False)
+        # client.vote_comment(comment_id, upvote=False)
+    
          
     reply_text = "This is a reply to the sample comment."
     reply_author = "user789"
     reply_response = client.create_comment(post_id, reply_text, reply_author, parent_comment=comment_id)
     if reply_response:
-        print(f"Reply created with ID: {reply_response.comment.comment_id}")
+        print(f"\nReply created with ID: {reply_response.comment.comment_id}")
         print(f"Reply: {reply_response.comment.content}")
         print(f"Author: {reply_response.comment.author}")
     else:
         print("Failed to create reply")
+        
+    reply_text = "This is a reply to the sample comment2."
+    reply_author = "user789"
+    reply_response = client.create_comment(post_id, reply_text, reply_author, parent_comment=comment_id)
+    if reply_response:
+        print(f"\nReply created with ID: {reply_response.comment.comment_id}")
+        print(f"Reply: {reply_response.comment.content}")
+        print(f"Author: {reply_response.comment.author}")
+    else:
+        print("Failed to create reply")
+        
+    print()   
+        
+    top_comments = client.list_top_comments(post_id=post_id, number_of_comments=3)
+    
+    # Expanding the comment branch
+    print("Expanding comment branch:")
+    client.expand_comment_branch(comment_id, number_of_comments=3)
 
 if __name__ == "__main__":
     main()

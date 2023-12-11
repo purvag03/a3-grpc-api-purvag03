@@ -3,6 +3,7 @@ import os
 from concurrent import futures
 import grpc
 import uuid
+from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'proto'))
 
@@ -24,7 +25,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             author=request.author,
             score=0,  # Initial score
             state=reddit_pb2.Post.NORMAL,
-            publication_date=request.publication_date,
+            publication_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             subreddit_id=request.subreddit,
             post_id=post_id  # Set the generated ID
         )
@@ -41,7 +42,6 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
 
         return reddit_pb2.PostResponse(post=new_post)
 
-
     def VotePost(self, request, context):
         post_id = request.post_id
         vote = request.vote  # True for upvote, False for downvote
@@ -49,17 +49,14 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         if post_id in self.posts:
             if vote:
                 self.posts[post_id].score += 1
-                
             else:
                 self.posts[post_id].score -= 1
-                
-
             return reddit_pb2.VoteResponse(new_score=self.posts[post_id].score)
         else:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details('Post not found')
             return reddit_pb2.VoteResponse()
-        
+
     def GetPost(self, request, context):
         post_id = request.post_id
 
@@ -69,24 +66,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details('Post not found')
             return reddit_pb2.PostResponse()
-    
-    # def CreateComment(self, request, context):
-    #     # Generate a unique ID for the comment
-    #     comment_id = str(uuid.uuid4())
 
-    #     # Create a new Comment object with the generated ID
-    #     new_comment = reddit_pb2.Comment(
-    #         content=request.content,
-    #         author=request.author,
-    #         comment_id=comment_id  # Set the generated ID
-    #     )
-
-    #     # Add the comment to the post (you may need to modify your data structure)
-    #     if request.post_id in self.posts:
-    #         self.posts[request.post_id].comments.append(new_comment)
-
-    #     return reddit_pb2.CommentResponse(comment=new_comment)
-    
     def CreateComment(self, request, context):
         # Generate a unique ID for the comment
         comment_id = str(uuid.uuid4())
@@ -98,7 +78,7 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             content=request.content,
             score=0,  # Initial score
             state=reddit_pb2.Comment.NORMAL,
-            # publication_date=request.publication_date,
+            publication_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             parent_id=request.post_id if not request.parent_comment else request.parent_comment
         )
 
@@ -113,24 +93,29 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
 
         # If the comment is a reply to another comment
         else:
-            found = False
+            parent_found = False
             for post in self.posts.values():
-                for comment in post.comments:
-                    if comment.comment_id == request.parent_comment:
-                        # Append the comment as a reply (you may need to adjust the data structure to allow nested comments)
-                        # For example: comment.replies.append(new_comment)
-                        found = True
+                for parent_comment in post.comments:
+                    if parent_comment.comment_id == request.parent_comment:
+                        # Check if the parent comment already has a 'replies' attribute
+                        if not hasattr(parent_comment, 'replies'):
+                            parent_comment.replies = []
+                        
+                        # Append the new comment as a reply to the parent comment
+                        parent_comment.replies.append(new_comment)
+                        parent_found = True
                         break
-                if found:
+
+                if parent_found:
                     break
 
-            if not found:
+            if not parent_found:
                 context.set_code(grpc.StatusCode.NOT_FOUND)
                 context.set_details('Parent comment not found')
                 return reddit_pb2.CommentResponse()
 
         return reddit_pb2.CommentResponse(comment=new_comment)
-    
+
     def VoteComment(self, request, context):
         comment_id = request.comment_id
         vote = request.vote  # True for upvote, False for downvote
@@ -148,6 +133,78 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
         context.set_code(grpc.StatusCode.NOT_FOUND)
         context.set_details('Comment not found')
         return reddit_pb2.VoteResponse()
+
+    def TopComments(self, request, context):
+        post_id = request.post_id
+        number_of_comments = request.number_of_comments
+
+        if post_id not in self.posts:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details('Post not found')
+            return reddit_pb2.TopCommentsResponse()
+
+        post = self.posts[post_id]
+        sorted_comments = sorted(post.comments, key=lambda c: c.score, reverse=True)[:number_of_comments]
+
+        response = reddit_pb2.TopCommentsResponse()
+        for comment in sorted_comments:
+            comment_with_replies = response.comments.add()
+            comment_with_replies.comment.CopyFrom(comment)
+            comment_with_replies.has_replies = self._has_replies(comment.comment_id)
+
+        return response
+
+    def _has_replies(self, comment_id):
+        for post in self.posts.values():
+            for comment in post.comments:
+                # Check direct comments
+                if comment.comment_id == comment_id and hasattr(comment, 'replies') and comment.replies:
+                    return True
+                # Check nested replies
+                if self._check_replies_for_comment(comment.replies, comment_id):
+                    return True
+        return False
+
+    def _check_replies_for_comment(self, replies, comment_id):
+        for reply in replies:
+            if reply.comment_id == comment_id and hasattr(reply, 'replies') and reply.replies:
+                return True
+            # Recursively check for nested replies
+            if self._check_replies_for_comment(reply.replies, comment_id):
+                return True
+        return False
+
+    def _get_top_comments(self, comments, number_of_comments):
+        return sorted(comments, key=lambda c: c.score, reverse=True)[:number_of_comments]
+    
+    def ExpandCommentBranch(self, request, context):
+        comment_id = request.comment_id
+        number_of_comments = request.number_of_comments
+
+        comment_tree = []
+
+        for post in self.posts.values():
+            for comment in post.comments:
+                if comment.comment_id == comment_id:
+                    # Create a CommentTree for the main comment
+                    comment_tree_node = reddit_pb2.ExpandCommentBranchResponse.CommentTree(comment=comment)
+                    # Get top N replies for the main comment
+                    top_replies = self._get_top_comments(comment.replies, number_of_comments)
+
+                    for reply in top_replies:
+                        # Append each top reply to the replies of the main comment
+                        comment_tree_node.replies.append(reply)
+
+                        # For each top reply, get its top N replies
+                        reply_top_replies = self._get_top_comments(reply.replies, number_of_comments)
+                        for reply_top_reply in reply_top_replies:
+                            # Each of these replies is directly added to the replies of the main comment
+                            comment_tree_node.replies.append(reply_top_reply)
+
+                    comment_tree.append(comment_tree_node)
+                    break
+
+        return reddit_pb2.ExpandCommentBranchResponse(comments=comment_tree)
 
 
 

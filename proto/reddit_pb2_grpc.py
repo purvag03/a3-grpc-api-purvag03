@@ -48,7 +48,7 @@ class RedditServiceStub(object):
         self.ExpandCommentBranch = channel.unary_unary(
                 '/reddit.RedditService/ExpandCommentBranch',
                 request_serializer=reddit__pb2.ExpandCommentBranchRequest.SerializeToString,
-                response_deserializer=reddit__pb2.CommentBranchResponse.FromString,
+                response_deserializer=reddit__pb2.ExpandCommentBranchResponse.FromString,
                 )
         self.MonitorUpdates = channel.unary_stream(
                 '/reddit.RedditService/MonitorUpdates',
@@ -145,7 +145,7 @@ def add_RedditServiceServicer_to_server(servicer, server):
             'ExpandCommentBranch': grpc.unary_unary_rpc_method_handler(
                     servicer.ExpandCommentBranch,
                     request_deserializer=reddit__pb2.ExpandCommentBranchRequest.FromString,
-                    response_serializer=reddit__pb2.CommentBranchResponse.SerializeToString,
+                    response_serializer=reddit__pb2.ExpandCommentBranchResponse.SerializeToString,
             ),
             'MonitorUpdates': grpc.unary_stream_rpc_method_handler(
                     servicer.MonitorUpdates,
@@ -278,7 +278,7 @@ class RedditService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/reddit.RedditService/ExpandCommentBranch',
             reddit__pb2.ExpandCommentBranchRequest.SerializeToString,
-            reddit__pb2.CommentBranchResponse.FromString,
+            reddit__pb2.ExpandCommentBranchResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

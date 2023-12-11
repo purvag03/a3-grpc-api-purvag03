@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package reddit;
 
-import "google/protobuf/timestamp.proto";
 
 // User entity
 message User {
@@ -26,7 +25,7 @@ message Post {
     HIDDEN = 2;
   }
   State state = 8;
-  google.protobuf.Timestamp publication_date = 9;
+  string publication_date = 9;
   string subreddit_id = 10;  // Reference to Subreddit
   repeated Comment comments = 11; // Add this line
 }
@@ -43,11 +42,12 @@ message Comment {
     HIDDEN = 1;
   }
   State state = 5;
-  google.protobuf.Timestamp publication_date = 6;
+  string  publication_date = 6;
   string parent_id = 7;  // reference to post or comment
 
 //   string parent_post = 6;      
    string parent_comment = 8;
+   repeated Comment replies = 9; // Add this line
 }
 
 // Subreddit entity
@@ -73,7 +73,7 @@ service RedditService {
   rpc CreateComment(CreateCommentRequest) returns (CommentResponse);
   rpc VoteComment(VoteCommentRequest) returns (VoteResponse);
   rpc TopComments(TopCommentsRequest) returns (TopCommentsResponse);
-  rpc ExpandCommentBranch(ExpandCommentBranchRequest) returns (CommentBranchResponse);
+  rpc ExpandCommentBranch(ExpandCommentBranchRequest) returns (ExpandCommentBranchResponse);
   rpc MonitorUpdates(MonitorUpdatesRequest) returns (stream UpdateResponse);
 }
 
@@ -84,7 +84,7 @@ message CreatePostRequest {
   string media_url = 3;
   string author = 4;
   string subreddit = 5;
-  google.protobuf.Timestamp publication_date = 6;
+  string  publication_date = 6;
 
 }
 
@@ -127,17 +127,26 @@ message TopCommentsRequest {
 }
 
 message TopCommentsResponse {
-  repeated Comment comments = 1;
-}
+    message CommentWithReplies {
+        Comment comment = 1;
+        bool has_replies = 2;
+      }
+      repeated CommentWithReplies comments = 1;
+}    
+
 
 message ExpandCommentBranchRequest {
   string comment_id = 1;
   int32 number_of_comments = 2;
 }
 
-message CommentBranchResponse {
-  repeated Comment comments = 1;
-}
+message ExpandCommentBranchResponse {
+    message CommentTree {
+      Comment comment = 1;
+      repeated Comment replies = 2;
+    }
+    repeated CommentTree comments = 1;
+  }
 
 message MonitorUpdatesRequest {
   string post_id = 1;

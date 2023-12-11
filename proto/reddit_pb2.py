@@ -12,58 +12,61 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0creddit.proto\x12\x06reddit\x1a\x1fgoogle/protobuf/timestamp.proto\"\x17\n\x04User\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"\xc5\x02\n\x04Post\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x13\n\tvideo_url\x18\x04 \x01(\tH\x00\x12\x13\n\timage_url\x18\x05 \x01(\tH\x00\x12\x0e\n\x06\x61uthor\x18\x06 \x01(\t\x12\r\n\x05score\x18\x07 \x01(\x05\x12!\n\x05state\x18\x08 \x01(\x0e\x32\x12.reddit.Post.State\x12\x34\n\x10publication_date\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0csubreddit_id\x18\n \x01(\t\x12!\n\x08\x63omments\x18\x0b \x03(\x0b\x32\x0f.reddit.Comment\"+\n\x05State\x12\n\n\x06NORMAL\x10\x00\x12\n\n\x06LOCKED\x10\x01\x12\n\n\x06HIDDEN\x10\x02\x42\x07\n\x05media\"\xf5\x01\n\x07\x43omment\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x05\x12$\n\x05state\x18\x05 \x01(\x0e\x32\x15.reddit.Comment.State\x12\x34\n\x10publication_date\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tparent_id\x18\x07 \x01(\t\x12\x16\n\x0eparent_comment\x18\x08 \x01(\t\"\x1f\n\x05State\x12\n\n\x06NORMAL\x10\x00\x12\n\n\x06HIDDEN\x10\x01\"\xa2\x01\n\tSubreddit\x12\x14\n\x0csubreddit_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x30\n\nvisibility\x18\x03 \x01(\x0e\x32\x1c.reddit.Subreddit.Visibility\x12\x0c\n\x04tags\x18\x04 \x03(\t\"1\n\nVisibility\x12\n\n\x06PUBLIC\x10\x00\x12\x0b\n\x07PRIVATE\x10\x01\x12\n\n\x06HIDDEN\x10\x02\"\x9c\x01\n\x11\x43reatePostRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\x11\n\tmedia_url\x18\x03 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x04 \x01(\t\x12\x11\n\tsubreddit\x18\x05 \x01(\t\x12\x34\n\x10publication_date\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"*\n\x0cPostResponse\x12\x1a\n\x04post\x18\x01 \x01(\x0b\x32\x0c.reddit.Post\"0\n\x0fVotePostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x0c\n\x04vote\x18\x02 \x01(\x08\"!\n\x0cVoteResponse\x12\x11\n\tnew_score\x18\x01 \x01(\x05\"!\n\x0eGetPostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"`\n\x14\x43reateCommentRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0f\n\x07post_id\x18\x03 \x01(\t\x12\x16\n\x0eparent_comment\x18\x04 \x01(\t\"3\n\x0f\x43ommentResponse\x12 \n\x07\x63omment\x18\x01 \x01(\x0b\x32\x0f.reddit.Comment\"6\n\x12VoteCommentRequest\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x0c\n\x04vote\x18\x02 \x01(\x08\"A\n\x12TopCommentsRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x1a\n\x12number_of_comments\x18\x02 \x01(\x05\"8\n\x13TopCommentsResponse\x12!\n\x08\x63omments\x18\x01 \x03(\x0b\x32\x0f.reddit.Comment\"L\n\x1a\x45xpandCommentBranchRequest\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x1a\n\x12number_of_comments\x18\x02 \x01(\x05\":\n\x15\x43ommentBranchResponse\x12!\n\x08\x63omments\x18\x01 \x03(\x0b\x32\x0f.reddit.Comment\"=\n\x15MonitorUpdatesRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63omment_ids\x18\x02 \x03(\t\"?\n\x0eUpdateResponse\x12\x1a\n\x12post_or_comment_id\x18\x01 \x01(\t\x12\x11\n\tnew_score\x18\x02 \x01(\x05\x32\xb8\x04\n\rRedditService\x12=\n\nCreatePost\x12\x19.reddit.CreatePostRequest\x1a\x14.reddit.PostResponse\x12\x39\n\x08VotePost\x12\x17.reddit.VotePostRequest\x1a\x14.reddit.VoteResponse\x12\x37\n\x07GetPost\x12\x16.reddit.GetPostRequest\x1a\x14.reddit.PostResponse\x12\x46\n\rCreateComment\x12\x1c.reddit.CreateCommentRequest\x1a\x17.reddit.CommentResponse\x12?\n\x0bVoteComment\x12\x1a.reddit.VoteCommentRequest\x1a\x14.reddit.VoteResponse\x12\x46\n\x0bTopComments\x12\x1a.reddit.TopCommentsRequest\x1a\x1b.reddit.TopCommentsResponse\x12X\n\x13\x45xpandCommentBranch\x12\".reddit.ExpandCommentBranchRequest\x1a\x1d.reddit.CommentBranchResponse\x12I\n\x0eMonitorUpdates\x12\x1d.reddit.MonitorUpdatesRequest\x1a\x16.reddit.UpdateResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0creddit.proto\x12\x06reddit\"\x17\n\x04User\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"\xa9\x02\n\x04Post\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x13\n\tvideo_url\x18\x04 \x01(\tH\x00\x12\x13\n\timage_url\x18\x05 \x01(\tH\x00\x12\x0e\n\x06\x61uthor\x18\x06 \x01(\t\x12\r\n\x05score\x18\x07 \x01(\x05\x12!\n\x05state\x18\x08 \x01(\x0e\x32\x12.reddit.Post.State\x12\x18\n\x10publication_date\x18\t \x01(\t\x12\x14\n\x0csubreddit_id\x18\n \x01(\t\x12!\n\x08\x63omments\x18\x0b \x03(\x0b\x32\x0f.reddit.Comment\"+\n\x05State\x12\n\n\x06NORMAL\x10\x00\x12\n\n\x06LOCKED\x10\x01\x12\n\n\x06HIDDEN\x10\x02\x42\x07\n\x05media\"\xfb\x01\n\x07\x43omment\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x05\x12$\n\x05state\x18\x05 \x01(\x0e\x32\x15.reddit.Comment.State\x12\x18\n\x10publication_date\x18\x06 \x01(\t\x12\x11\n\tparent_id\x18\x07 \x01(\t\x12\x16\n\x0eparent_comment\x18\x08 \x01(\t\x12 \n\x07replies\x18\t \x03(\x0b\x32\x0f.reddit.Comment\"\x1f\n\x05State\x12\n\n\x06NORMAL\x10\x00\x12\n\n\x06HIDDEN\x10\x01\"\xa2\x01\n\tSubreddit\x12\x14\n\x0csubreddit_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x30\n\nvisibility\x18\x03 \x01(\x0e\x32\x1c.reddit.Subreddit.Visibility\x12\x0c\n\x04tags\x18\x04 \x03(\t\"1\n\nVisibility\x12\n\n\x06PUBLIC\x10\x00\x12\x0b\n\x07PRIVATE\x10\x01\x12\n\n\x06HIDDEN\x10\x02\"\x80\x01\n\x11\x43reatePostRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\x11\n\tmedia_url\x18\x03 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x04 \x01(\t\x12\x11\n\tsubreddit\x18\x05 \x01(\t\x12\x18\n\x10publication_date\x18\x06 \x01(\t\"*\n\x0cPostResponse\x12\x1a\n\x04post\x18\x01 \x01(\x0b\x32\x0c.reddit.Post\"0\n\x0fVotePostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x0c\n\x04vote\x18\x02 \x01(\x08\"!\n\x0cVoteResponse\x12\x11\n\tnew_score\x18\x01 \x01(\x05\"!\n\x0eGetPostRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\"`\n\x14\x43reateCommentRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x02 \x01(\t\x12\x0f\n\x07post_id\x18\x03 \x01(\t\x12\x16\n\x0eparent_comment\x18\x04 \x01(\t\"3\n\x0f\x43ommentResponse\x12 \n\x07\x63omment\x18\x01 \x01(\x0b\x32\x0f.reddit.Comment\"6\n\x12VoteCommentRequest\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x0c\n\x04vote\x18\x02 \x01(\x08\"A\n\x12TopCommentsRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x1a\n\x12number_of_comments\x18\x02 \x01(\x05\"\xa4\x01\n\x13TopCommentsResponse\x12@\n\x08\x63omments\x18\x01 \x03(\x0b\x32..reddit.TopCommentsResponse.CommentWithReplies\x1aK\n\x12\x43ommentWithReplies\x12 \n\x07\x63omment\x18\x01 \x01(\x0b\x32\x0f.reddit.Comment\x12\x13\n\x0bhas_replies\x18\x02 \x01(\x08\"L\n\x1a\x45xpandCommentBranchRequest\x12\x12\n\ncomment_id\x18\x01 \x01(\t\x12\x1a\n\x12number_of_comments\x18\x02 \x01(\x05\"\xb3\x01\n\x1b\x45xpandCommentBranchResponse\x12\x41\n\x08\x63omments\x18\x01 \x03(\x0b\x32/.reddit.ExpandCommentBranchResponse.CommentTree\x1aQ\n\x0b\x43ommentTree\x12 \n\x07\x63omment\x18\x01 \x01(\x0b\x32\x0f.reddit.Comment\x12 \n\x07replies\x18\x02 \x03(\x0b\x32\x0f.reddit.Comment\"=\n\x15MonitorUpdatesRequest\x12\x0f\n\x07post_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63omment_ids\x18\x02 \x03(\t\"?\n\x0eUpdateResponse\x12\x1a\n\x12post_or_comment_id\x18\x01 \x01(\t\x12\x11\n\tnew_score\x18\x02 \x01(\x05\x32\xbe\x04\n\rRedditService\x12=\n\nCreatePost\x12\x19.reddit.CreatePostRequest\x1a\x14.reddit.PostResponse\x12\x39\n\x08VotePost\x12\x17.reddit.VotePostRequest\x1a\x14.reddit.VoteResponse\x12\x37\n\x07GetPost\x12\x16.reddit.GetPostRequest\x1a\x14.reddit.PostResponse\x12\x46\n\rCreateComment\x12\x1c.reddit.CreateCommentRequest\x1a\x17.reddit.CommentResponse\x12?\n\x0bVoteComment\x12\x1a.reddit.VoteCommentRequest\x1a\x14.reddit.VoteResponse\x12\x46\n\x0bTopComments\x12\x1a.reddit.TopCommentsRequest\x1a\x1b.reddit.TopCommentsResponse\x12^\n\x13\x45xpandCommentBranch\x12\".reddit.ExpandCommentBranchRequest\x1a#.reddit.ExpandCommentBranchResponse\x12I\n\x0eMonitorUpdates\x12\x1d.reddit.MonitorUpdatesRequest\x1a\x16.reddit.UpdateResponse0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'reddit_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_USER']._serialized_start=57
-  _globals['_USER']._serialized_end=80
-  _globals['_POST']._serialized_start=83
-  _globals['_POST']._serialized_end=408
-  _globals['_POST_STATE']._serialized_start=356
-  _globals['_POST_STATE']._serialized_end=399
-  _globals['_COMMENT']._serialized_start=411
-  _globals['_COMMENT']._serialized_end=656
-  _globals['_COMMENT_STATE']._serialized_start=625
-  _globals['_COMMENT_STATE']._serialized_end=656
-  _globals['_SUBREDDIT']._serialized_start=659
-  _globals['_SUBREDDIT']._serialized_end=821
-  _globals['_SUBREDDIT_VISIBILITY']._serialized_start=772
-  _globals['_SUBREDDIT_VISIBILITY']._serialized_end=821
-  _globals['_CREATEPOSTREQUEST']._serialized_start=824
-  _globals['_CREATEPOSTREQUEST']._serialized_end=980
-  _globals['_POSTRESPONSE']._serialized_start=982
-  _globals['_POSTRESPONSE']._serialized_end=1024
-  _globals['_VOTEPOSTREQUEST']._serialized_start=1026
-  _globals['_VOTEPOSTREQUEST']._serialized_end=1074
-  _globals['_VOTERESPONSE']._serialized_start=1076
-  _globals['_VOTERESPONSE']._serialized_end=1109
-  _globals['_GETPOSTREQUEST']._serialized_start=1111
-  _globals['_GETPOSTREQUEST']._serialized_end=1144
-  _globals['_CREATECOMMENTREQUEST']._serialized_start=1146
-  _globals['_CREATECOMMENTREQUEST']._serialized_end=1242
-  _globals['_COMMENTRESPONSE']._serialized_start=1244
-  _globals['_COMMENTRESPONSE']._serialized_end=1295
-  _globals['_VOTECOMMENTREQUEST']._serialized_start=1297
-  _globals['_VOTECOMMENTREQUEST']._serialized_end=1351
-  _globals['_TOPCOMMENTSREQUEST']._serialized_start=1353
-  _globals['_TOPCOMMENTSREQUEST']._serialized_end=1418
-  _globals['_TOPCOMMENTSRESPONSE']._serialized_start=1420
-  _globals['_TOPCOMMENTSRESPONSE']._serialized_end=1476
-  _globals['_EXPANDCOMMENTBRANCHREQUEST']._serialized_start=1478
-  _globals['_EXPANDCOMMENTBRANCHREQUEST']._serialized_end=1554
-  _globals['_COMMENTBRANCHRESPONSE']._serialized_start=1556
-  _globals['_COMMENTBRANCHRESPONSE']._serialized_end=1614
-  _globals['_MONITORUPDATESREQUEST']._serialized_start=1616
-  _globals['_MONITORUPDATESREQUEST']._serialized_end=1677
-  _globals['_UPDATERESPONSE']._serialized_start=1679
-  _globals['_UPDATERESPONSE']._serialized_end=1742
-  _globals['_REDDITSERVICE']._serialized_start=1745
-  _globals['_REDDITSERVICE']._serialized_end=2313
+  _globals['_USER']._serialized_start=24
+  _globals['_USER']._serialized_end=47
+  _globals['_POST']._serialized_start=50
+  _globals['_POST']._serialized_end=347
+  _globals['_POST_STATE']._serialized_start=295
+  _globals['_POST_STATE']._serialized_end=338
+  _globals['_COMMENT']._serialized_start=350
+  _globals['_COMMENT']._serialized_end=601
+  _globals['_COMMENT_STATE']._serialized_start=570
+  _globals['_COMMENT_STATE']._serialized_end=601
+  _globals['_SUBREDDIT']._serialized_start=604
+  _globals['_SUBREDDIT']._serialized_end=766
+  _globals['_SUBREDDIT_VISIBILITY']._serialized_start=717
+  _globals['_SUBREDDIT_VISIBILITY']._serialized_end=766
+  _globals['_CREATEPOSTREQUEST']._serialized_start=769
+  _globals['_CREATEPOSTREQUEST']._serialized_end=897
+  _globals['_POSTRESPONSE']._serialized_start=899
+  _globals['_POSTRESPONSE']._serialized_end=941
+  _globals['_VOTEPOSTREQUEST']._serialized_start=943
+  _globals['_VOTEPOSTREQUEST']._serialized_end=991
+  _globals['_VOTERESPONSE']._serialized_start=993
+  _globals['_VOTERESPONSE']._serialized_end=1026
+  _globals['_GETPOSTREQUEST']._serialized_start=1028
+  _globals['_GETPOSTREQUEST']._serialized_end=1061
+  _globals['_CREATECOMMENTREQUEST']._serialized_start=1063
+  _globals['_CREATECOMMENTREQUEST']._serialized_end=1159
+  _globals['_COMMENTRESPONSE']._serialized_start=1161
+  _globals['_COMMENTRESPONSE']._serialized_end=1212
+  _globals['_VOTECOMMENTREQUEST']._serialized_start=1214
+  _globals['_VOTECOMMENTREQUEST']._serialized_end=1268
+  _globals['_TOPCOMMENTSREQUEST']._serialized_start=1270
+  _globals['_TOPCOMMENTSREQUEST']._serialized_end=1335
+  _globals['_TOPCOMMENTSRESPONSE']._serialized_start=1338
+  _globals['_TOPCOMMENTSRESPONSE']._serialized_end=1502
+  _globals['_TOPCOMMENTSRESPONSE_COMMENTWITHREPLIES']._serialized_start=1427
+  _globals['_TOPCOMMENTSRESPONSE_COMMENTWITHREPLIES']._serialized_end=1502
+  _globals['_EXPANDCOMMENTBRANCHREQUEST']._serialized_start=1504
+  _globals['_EXPANDCOMMENTBRANCHREQUEST']._serialized_end=1580
+  _globals['_EXPANDCOMMENTBRANCHRESPONSE']._serialized_start=1583
+  _globals['_EXPANDCOMMENTBRANCHRESPONSE']._serialized_end=1762
+  _globals['_EXPANDCOMMENTBRANCHRESPONSE_COMMENTTREE']._serialized_start=1681
+  _globals['_EXPANDCOMMENTBRANCHRESPONSE_COMMENTTREE']._serialized_end=1762
+  _globals['_MONITORUPDATESREQUEST']._serialized_start=1764
+  _globals['_MONITORUPDATESREQUEST']._serialized_end=1825
+  _globals['_UPDATERESPONSE']._serialized_start=1827
+  _globals['_UPDATERESPONSE']._serialized_end=1890
+  _globals['_REDDITSERVICE']._serialized_start=1893
+  _globals['_REDDITSERVICE']._serialized_end=2467
 # @@protoc_insertion_point(module_scope)
