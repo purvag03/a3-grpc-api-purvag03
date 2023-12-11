@@ -47,7 +47,7 @@ message Comment {
   string parent_id = 7;  // reference to post or comment
 
 //   string parent_post = 6;      
-//   string parent_comment = 7;
+   string parent_comment = 8;
 }
 
 // Subreddit entity

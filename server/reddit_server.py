@@ -70,20 +70,64 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.set_details('Post not found')
             return reddit_pb2.PostResponse()
     
+    # def CreateComment(self, request, context):
+    #     # Generate a unique ID for the comment
+    #     comment_id = str(uuid.uuid4())
+
+    #     # Create a new Comment object with the generated ID
+    #     new_comment = reddit_pb2.Comment(
+    #         content=request.content,
+    #         author=request.author,
+    #         comment_id=comment_id  # Set the generated ID
+    #     )
+
+    #     # Add the comment to the post (you may need to modify your data structure)
+    #     if request.post_id in self.posts:
+    #         self.posts[request.post_id].comments.append(new_comment)
+
+    #     return reddit_pb2.CommentResponse(comment=new_comment)
+    
     def CreateComment(self, request, context):
         # Generate a unique ID for the comment
         comment_id = str(uuid.uuid4())
 
         # Create a new Comment object with the generated ID
         new_comment = reddit_pb2.Comment(
-            content=request.content,
+            comment_id=comment_id,
             author=request.author,
-            comment_id=comment_id  # Set the generated ID
+            content=request.content,
+            score=0,  # Initial score
+            state=reddit_pb2.Comment.NORMAL,
+            # publication_date=request.publication_date,
+            parent_id=request.post_id if not request.parent_comment else request.parent_comment
         )
 
-        # Add the comment to the post (you may need to modify your data structure)
-        if request.post_id in self.posts:
-            self.posts[request.post_id].comments.append(new_comment)
+        # If the comment is a reply to a post
+        if not request.parent_comment:
+            if request.post_id in self.posts:
+                self.posts[request.post_id].comments.append(new_comment)
+            else:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details('Post not found')
+                return reddit_pb2.CommentResponse()
+
+        # If the comment is a reply to another comment
+        else:
+            found = False
+            for post in self.posts.values():
+                for comment in post.comments:
+                    if comment.comment_id == request.parent_comment:
+                        # Append the comment as a reply (you may need to adjust the data structure to allow nested comments)
+                        # For example: comment.replies.append(new_comment)
+                        found = True
+                        break
+                if found:
+                    break
+
+            if not found:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details('Parent comment not found')
+                return reddit_pb2.CommentResponse()
 
         return reddit_pb2.CommentResponse(comment=new_comment)
     
