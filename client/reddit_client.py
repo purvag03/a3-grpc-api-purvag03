@@ -70,6 +70,16 @@ class RedditClient:
             print(f"Author: {response.comment.author}")
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
+        
+        return self.stub.CreateComment(comment_request)
+    
+    def vote_comment(self, comment_id, upvote=True):
+        vote_request = reddit_pb2.VoteCommentRequest(comment_id=comment_id, vote=upvote)
+        try:
+            response = self.stub.VoteComment(vote_request)
+            print(f"Successfully {'upvoted' if upvote else 'downvoted'} Comment ID {comment_id}. New Score: {response.new_score}")
+        except grpc.RpcError as e:
+            print(f"RPC failed: {e.details()}")        
 
 def main():
     client = RedditClient()
@@ -110,7 +120,11 @@ def main():
 
     comment_text = "This is a sample comment."
     comment_author = "user456"
-    client.create_comment(post_id, comment_text, comment_author)
+    comment_response = client.create_comment(post_id, comment_text, comment_author)
+    
+    comment_id = comment_response.comment.comment_id  # replace with actual comment ID
+    client.vote_comment(comment_id, upvote=True)  # Upvote the comment
+    client.vote_comment(comment_id, upvote=False)  # Downvote the comment
    
    
 

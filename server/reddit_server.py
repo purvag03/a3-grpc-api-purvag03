@@ -86,6 +86,24 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             self.posts[request.post_id].comments.append(new_comment)
 
         return reddit_pb2.CommentResponse(comment=new_comment)
+    
+    def VoteComment(self, request, context):
+        comment_id = request.comment_id
+        vote = request.vote  # True for upvote, False for downvote
+
+        # Find the comment and update its score
+        for post in self.posts.values():
+            for comment in post.comments:
+                if comment.comment_id == comment_id:
+                    if vote:
+                        comment.score += 1
+                    else:
+                        comment.score -= 1
+                    return reddit_pb2.VoteResponse(new_score=comment.score)
+
+        context.set_code(grpc.StatusCode.NOT_FOUND)
+        context.set_details('Comment not found')
+        return reddit_pb2.VoteResponse()
 
 
 
