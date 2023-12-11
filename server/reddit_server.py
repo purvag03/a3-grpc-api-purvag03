@@ -59,6 +59,17 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details('Post not found')
             return reddit_pb2.VoteResponse()
+        
+    def GetPost(self, request, context):
+        post_id = request.post_id
+
+        if post_id in self.posts:
+            return reddit_pb2.PostResponse(post=self.posts[post_id])
+        else:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details('Post not found')
+            return reddit_pb2.PostResponse()
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
