@@ -47,18 +47,22 @@ class RedditClient:
 
         return self.stub.CreatePost(post_request)
     
-    def convert_timestamp_to_readable(seconds, nanos):
-        # Convert to datetime
-        timestamp = datetime.datetime.utcfromtimestamp(seconds) + datetime.timedelta(microseconds=nanos / 1000)
-
-        # Format to a readable string
-        return timestamp.strftime("%Y-%m-%d %H:%M:%S.%f UTC")
+    def vote_post(self, post_id, upvote=True):
+        # Determine the vote type (upvote or downvote)
+        vote_type = "upvoted" if upvote else "downvoted"
+        
+        vote_request = reddit_pb2.VotePostRequest(post_id=post_id, vote=upvote)
+        try:
+            response = self.stub.VotePost(vote_request)
+            print(f"Successfully {vote_type} Post ID {post_id}. New Score: {response.new_score}")
+        except grpc.RpcError as e:
+            print(f"RPC failed: {e.details()}")
 
 def main():
     client = RedditClient()
     title = "Sample Post Title"
     text = "This is a sample post."
-    media_url = "example.com/media.jpg"  # Could be an image or video URL
+    media_url = "example.com/media.mp4"  # Could be an image or video URL
     author = "user123"
     subreddit = "sampleSubreddit"
     
@@ -72,14 +76,19 @@ def main():
     print(f"Author: {response.post.author}")
     print(f"Score: {response.post.score}")
     print(f"State: {reddit_pb2.Post.State.Name(response.post.state)}")
-    print(f"Publication Date: {response.post.publication_date}")
     print(f"Subreddit ID: {response.post.subreddit_id}")
     # Check which media field is set and print it
     if response.post.HasField('video_url'):
         print(f"Video URL: {response.post.video_url}")
     elif response.post.HasField('image_url'):
         print(f"Image URL: {response.post.image_url}")
-
+    print(f"Publication Date: {response.post.publication_date}")
+    
+    # Assuming you have a post_id from a created post
+    post_id = response.post.post_id
+    client.vote_post(post_id, upvote=True)  # Upvote the post
+    client.vote_post(post_id, upvote=True)
+    client.vote_post(post_id, upvote=False)  # Downvote the post
 
 if __name__ == "__main__":
     main()

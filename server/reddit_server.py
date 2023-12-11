@@ -41,7 +41,24 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
 
         return reddit_pb2.PostResponse(post=new_post)
 
-    
+
+    def VotePost(self, request, context):
+        post_id = request.post_id
+        vote = request.vote  # True for upvote, False for downvote
+
+        if post_id in self.posts:
+            if vote:
+                self.posts[post_id].score += 1
+                
+            else:
+                self.posts[post_id].score -= 1
+                
+
+            return reddit_pb2.VoteResponse(new_score=self.posts[post_id].score)
+        else:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details('Post not found')
+            return reddit_pb2.VoteResponse()
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
