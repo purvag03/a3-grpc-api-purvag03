@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package reddit;
+
+import "google/protobuf/timestamp.proto";
+
+// User entity
+message User {
+  string user_id = 1;
+}
+
+// Post entity
+message Post {
+  string post_id = 1;
+  string title = 2;
+  string text = 3;
+  oneof media {
+    string video_url = 4;
+    string image_url = 5;
+  }
+  string author = 6;  // Optional
+  int32 score = 7;
+  enum State {
+    NORMAL = 0;
+    LOCKED = 1;
+    HIDDEN = 2;
+  }
+  State state = 8;
+  google.protobuf.Timestamp publication_date = 9;
+  string subreddit_id = 10;  // Reference to Subreddit
+}
+
+// Comment entity
+message Comment {
+
+  string comment_id = 1;
+  string author = 2;
+  string content = 3;
+  int32 score = 4;
+  enum State {
+    NORMAL = 0;
+    HIDDEN = 1;
+  }
+  State state = 5;
+  google.protobuf.Timestamp publication_date = 6;
+  string parent_id = 7;  // reference to post or comment
+
+//   string parent_post = 6;      
+//   string parent_comment = 7;
+}
+
+// Subreddit entity
+message Subreddit {
+    string subreddit_id = 1;
+    string name = 2;
+  
+  Visibility visibility = 3;
+  repeated string tags = 4;  // List of tags
+
+  enum Visibility {
+    PUBLIC = 0;
+    PRIVATE = 1;
+    HIDDEN = 2;
+  }
+}
+
+// Service definitions
+service RedditService {
+  rpc CreatePost(CreatePostRequest) returns (PostResponse);
+  rpc VotePost(VotePostRequest) returns (VoteResponse);
+  rpc GetPost(GetPostRequest) returns (PostResponse);
+  rpc CreateComment(CreateCommentRequest) returns (CommentResponse);
+  rpc VoteComment(VoteCommentRequest) returns (VoteResponse);
+  rpc TopComments(TopCommentsRequest) returns (TopCommentsResponse);
+  rpc ExpandCommentBranch(ExpandCommentBranchRequest) returns (CommentBranchResponse);
+  rpc MonitorUpdates(MonitorUpdatesRequest) returns (stream UpdateResponse);
+}
+
+// Request and response messages
+message CreatePostRequest {
+  string title = 1;
+  string text = 2;
+  string media_url = 3;
+  string author = 4;
+  string subreddit = 5;
+  google.protobuf.Timestamp publication_date = 6;
+
+}
+
+message PostResponse {
+  Post post = 1;
+}
+
+message VotePostRequest {
+  string post_id = 1;
+  bool vote = 2;  // true for upvote, false for downvote
+}
+
+message VoteResponse {
+  int32 new_score = 1;
+}
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message CreateCommentRequest {
+  string content = 1;
+  string author = 2;
+  string parent_post = 3;
+  string parent_comment = 4; // Optional
+}
+
+message CommentResponse {
+  Comment comment = 1;
+}
+
+message VoteCommentRequest {
+  string comment_id = 1;
+  bool vote = 2; // true for upvote, false for downvote
+}
+
+message TopCommentsRequest {
+  string post_id = 1;
+  int32 number_of_comments = 2;
+}
+
+message TopCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message ExpandCommentBranchRequest {
+  string comment_id = 1;
+  int32 number_of_comments = 2;
+}
+
+message CommentBranchResponse {
+  repeated Comment comments = 1;
+}
+
+message MonitorUpdatesRequest {
+  string post_id = 1;
+  repeated string comment_ids = 2;
+}
+
+message UpdateResponse {
+  string post_or_comment_id = 1;
+  int32 new_score = 2;
+}
