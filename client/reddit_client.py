@@ -15,7 +15,7 @@ class RedditClient:
         self.channel = grpc.insecure_channel(channel_address)
         self.stub = reddit_pb2_grpc.RedditServiceStub(self.channel)
         
-
+    # Create a request to create a new post
     def create_post(self, title, text, media_url, author, subreddit):
         
         post_request = reddit_pb2.CreatePostRequest(
@@ -29,6 +29,8 @@ class RedditClient:
         post_response = self.stub.CreatePost(post_request)
         return post_response
     
+    
+    # Create a request to vote on a post
     def vote_post(self, post_id, upvote=True):
         vote_request = reddit_pb2.VotePostRequest(post_id=post_id, vote=upvote)
         try:
@@ -37,6 +39,7 @@ class RedditClient:
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
             
+     # Create a request to retrieve a post       
     def get_post(self, post_id):
         get_post_request = reddit_pb2.GetPostRequest(post_id=post_id)
         try:
@@ -50,6 +53,7 @@ class RedditClient:
             print(f"RPC failed: {e.details()}")
             return None
 
+    # Create a request to create a new comment
     def create_comment(self, post_id, content, author, parent_comment=None):
         comment_request = reddit_pb2.CreateCommentRequest(
             post_id=post_id,
@@ -71,7 +75,8 @@ class RedditClient:
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
             return None
-
+        
+    # Create a request to vote on a comment
     def vote_comment(self, comment_id, upvote=True):
         vote_request = reddit_pb2.VoteCommentRequest(comment_id=comment_id, vote=upvote)
         try:
@@ -80,6 +85,8 @@ class RedditClient:
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
             
+            
+    # Create a request to get top n comments        
     def list_top_comments(self, post_id, number_of_comments):
         request = reddit_pb2.TopCommentsRequest(post_id=post_id, number_of_comments=number_of_comments)
         try:
@@ -91,6 +98,7 @@ class RedditClient:
             print(f"RPC failed: {e.details()}")
             return None
     
+    #Create a request to  expand comment
     def expand_comment_branch(self, comment_id, number_of_comments):
         request = reddit_pb2.ExpandCommentBranchRequest(comment_id=comment_id, number_of_comments=number_of_comments)
         try:
@@ -101,7 +109,9 @@ class RedditClient:
         except grpc.RpcError as e:
             print(f"RPC failed: {e.details()}")
             return None
-
+        
+        
+    #Print comment tree
     def _print_comment_tree(self, comment, indent, replies):
         # Print the main comment
         print(f"{indent}Comment ID: {comment.comment_id}, Score: {comment.score}")
