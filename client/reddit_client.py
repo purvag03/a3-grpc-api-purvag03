@@ -118,9 +118,16 @@ class RedditClient:
         # Print each reply
         for reply in replies:
             self._print_comment_tree(reply, indent + "  ", reply.replies)
+            
+     # To monitor score changes       
+    def monitor_updates(self, post_id, comment_ids=[]):
+        request = reddit_pb2.MonitorUpdatesRequest(post_id=post_id, comment_ids=comment_ids)
+        try:
+           for update in self.stub.MonitorUpdates(request):
+               print(f"Update: {update.post_or_comment_id} has new score: {update.new_score}")
+        except grpc.RpcError as e:
+               print(f"RPC failed: {e.details()}")
         
-    
-    
     
 #Added for Manual Testing Purposes 
 def main():
@@ -197,6 +204,7 @@ def main():
     # Expanding the comment branch
     print("Expanding comment branch:")
     client.expand_comment_branch(comment_id, number_of_comments=3)
+
 
 if __name__ == "__main__":
     main()

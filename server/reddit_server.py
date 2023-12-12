@@ -13,6 +13,7 @@ import reddit_pb2_grpc
 class RedditService(reddit_pb2_grpc.RedditServiceServicer):
     def __init__(self):
         self.posts = {}
+        self.last_known_scores = {} 
 
     def CreatePost(self, request, context):
         # Generate a unique ID for the post
@@ -205,7 +206,22 @@ class RedditService(reddit_pb2_grpc.RedditServiceServicer):
                     break
 
         return reddit_pb2.ExpandCommentBranchResponse(comments=comment_tree)
+    
+    def MonitorUpdates(self, request, context):
+        post_id = request.post_id
+        comment_ids = set(request.comment_ids)
 
+        while not context.is_active():
+            # Check for updates in the scores of the post and comments
+            # If there's an update, yield an UpdateResponse
+            if self.posts[post_id].score_has_changed():
+                yield reddit_pb2.UpdateResponse(post_or_comment_id=post_id, new_score=self.posts[post_id].score)
+            for comment_id in comment_ids:
+                if self.posts[post_id].comments[comment_id].score_has_changed():
+                    yield reddit_pb2.UpdateResponse(post_or_comment_id=comment_id, new_score=self.posts[post_id].comments[comment_id].score)
+            time.sleep(1) 
+            
+        
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     reddit_pb2_grpc.add_RedditServiceServicer_to_server(RedditService(), server)
