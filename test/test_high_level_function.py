@@ -4,57 +4,72 @@ import os
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
 from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'client'))
 
 import reddit_client
 import reddit_pb2
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'high_level_function'))
-import high_level_function
-
+from high_level_function import RedditPostManager
 
 class TestRetrievePostAndMostUpvotedReply(unittest.TestCase):
-
     def test_retrieve_post_and_most_upvoted_reply(self):
-        # Create mock responses for the functions used in the retrieve_post_and_most_upvoted_reply function
-        create_post_response = MagicMock()
-        create_post_response.post.post_id = "post123"
-
-        create_comment_response = MagicMock()
-        create_comment_response.comment.comment_id = "comment456"
-
-        most_upvoted_comment_response = MagicMock()
-        most_upvoted_comment_response.comment.comment_id = "comment789"
-        most_upvoted_comment_response.replies = []
-
-        most_upvoted_reply_response = MagicMock()
-        most_upvoted_reply_response.comment_id = "reply123"
-        most_upvoted_reply_response.score = 10
-
-        # Create a mock API client
+        # Create a mock Reddit API client
         api_client = MagicMock()
 
-        # Mock the functions used in the retrieve_post_and_most_upvoted_reply function
-        api_client.create_post.return_value = create_post_response
-        api_client.vote_post.side_effect = [None, None, None]
-        api_client.create_comment.return_value = create_comment_response
-        api_client.vote_comment.side_effect = [None, None]
-
-        # Mock the get_most_upvoted_comment_and_reply function
-        api_client.list_top_comments.return_value = [most_upvoted_comment_response]
-        most_upvoted_comment_response.replies = [most_upvoted_reply_response]
-
-        # Call the function to be tested
-        client = reddit_client.RedditClient()
+        # Mock the behavior of create_post_comments_votes
+        api_client.create_post.return_value = Mock(
+            post=Mock(
+                post_id="123",
+                title="Sample Post Title",
+                text="This is a sample post.",
+                author="user123",
+                score=0,
+                state=0,  # Assuming State is an enum with 0 as a valid value
+                subreddit_id="456",
+                publication_date="2023-01-01T00:00:00Z",
+            )
+        )
         
-        high_level_function.retrieve_post_and_most_upvoted_reply(client)
+        # Mock the behavior of list_top_comments
+        api_client.list_top_comments.return_value = [
+            Mock(
+                comment=Mock(
+                    comment_id="789",
+                    author="user456",
+                    content="This is a sample comment.",
+                    score=5,
+                    replies=[
+                        Mock(
+                            comment_id="1011",
+                            author="user789",
+                            content="This is a reply to the sample comment.",
+                            score=10,
+                        ),
+                        Mock(
+                            comment_id="1213",
+                            author="user789",
+                            content="This is a reply to the sample comment2.",
+                            score=8,
+                        ),
+                    ],
+                )
+            )
+        ]
 
-        api_client.create_post.assert_called_once()
-        api_client.vote_post.assert_called_with("post123", upvote=True)
-        api_client.create_comment.assert_called_once()
-        api_client.vote_comment.assert_called_with("comment456", upvote=True)
+        # Create an instance of RedditPostManager
+        post_manager = RedditPostManager(api_client)
 
-if __name__ == "__main__":
+        # Call the method to test
+        most_upvoted_comment, most_upvoted_reply = post_manager.retrieve_post_and_most_upvoted_reply()
+
+        # Assertions to check if the highest-scoring comment and reply are being returned
+        self.assertIsNotNone(most_upvoted_comment)
+        self.assertIsNotNone(most_upvoted_reply)
+        self.assertEqual(most_upvoted_comment.comment_id, "789")
+        self.assertEqual(most_upvoted_reply.comment_id, "1011")
+
+if __name__ == '__main__':
     unittest.main()
