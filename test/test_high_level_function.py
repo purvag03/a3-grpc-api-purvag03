@@ -51,8 +51,6 @@ class TestRetrievePostAndMostUpvotedReply(unittest.TestCase):
         
         high_level_function.retrieve_post_and_most_upvoted_reply(client)
 
-        # Add your assertions here to verify the expected behavior
-        # For example:
         api_client.create_post.assert_called_once()
         api_client.vote_post.assert_called_with("post123", upvote=True)
         api_client.create_comment.assert_called_once()
